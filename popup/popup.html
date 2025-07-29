@@ -8,44 +8,58 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="title">Marvel Streak Tracker</h1>
-        
-        <div class="character-section">
-            <img id="character-image" class="character-image" src="" alt="Marvel Character">
-            <h2 id="character-name" class="character-name"></h2>
-            <div class="character-level">Level <span id="character-level">1</span></div>
-        </div>
-        
-        <div class="streak-section">
-            <div class="streak-number" id="streak-count">0</div>
-            <div class="streak-label">Total Streak</div>
-            <div class="daily-streaks">Today: <span id="daily-count">0</span>/5</div>
-        </div>
-        
-        <div class="streak-input-section">
-            <input type="text" id="streak-reason" class="streak-reason-input" 
-                   placeholder="What did you accomplish? (max 15 words)" 
-                   maxlength="150">
-        </div>
-        
-        <button id="streak-button" class="streak-button">
-            <span class="button-text">Add Streak</span>
-            <span class="button-icon">⚡</span>
-        </button>
-        
-        <div class="progress-section">
-            <div class="progress-label">Progress to Next Hero</div>
-            <div class="progress-bar">
-                <div id="progress-fill" class="progress-fill"></div>
+        <!-- Compact Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="character-badge">
+                    <img id="character-image" class="character-icon" src="" alt="">
+                    <div class="character-info">
+                        <div id="character-name" class="character-name">No Hero Yet</div>
+                        <div class="character-level">Level <span id="character-level">0</span></div>
+                    </div>
+                </div>
+                <div class="streak-display">
+                    <div class="streak-number" id="streak-count">0</div>
+                    <div class="streak-label">days</div>
+                    <div class="penalty-indicator" id="penalty-indicator"></div>
+                </div>
             </div>
-            <div class="progress-text"><span id="progress-current">0</span> / 5</div>
+            
+            <!-- Progress Bar -->
+            <div class="progress-wrapper">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <div class="progress-info">
+                    <span id="progress-label">Start your journey!</span>
+                    <span class="daily-counter">Today: <span id="daily-count">0</span>/5</span>
+                </div>
+            </div>
         </div>
-        
-        <div class="last-streak" id="last-streak"></div>
-        
-        <div class="today-reasons" id="today-reasons">
-            <h3 class="reasons-title">Today's Accomplishments</h3>
-            <div class="reasons-list" id="reasons-list"></div>
+
+        <!-- Main Action Area -->
+        <div class="action-area">
+            <input type="text" id="streak-reason" class="streak-input" 
+                   placeholder="What did you achieve? (max 15 words)" 
+                   maxlength="150">
+            
+            <button id="streak-button" class="streak-button">
+                <span class="button-content">
+                    <span class="button-text">Add Streak</span>
+                    <svg class="button-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                </span>
+            </button>
+        </div>
+
+        <!-- Today's Achievements (Compact) -->
+        <div class="achievements" id="today-reasons">
+            <div class="achievements-header">
+                <span class="achievements-title">Today's Achievements</span>
+                <span class="achievements-toggle" id="toggle-achievements">▼</span>
+            </div>
+            <div class="achievements-list" id="reasons-list"></div>
         </div>
     </div>
     

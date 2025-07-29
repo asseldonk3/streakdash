@@ -61,12 +61,34 @@ let streakData = {
     lastStreakTime: null,
     dailyStreakTimes: [],
     todayReasons: [],
-    allReasons: []
+    allReasons: [],
+    penaltyPoints: 0,
+    lastPenaltyCheck: null
 };
+
+// Marvel villains for penalty laughs
+const marvelVillains = [
+    { name: "Loki", quote: "MWAHAHAHA! Your dedication wavers, mortal!", tier: 2 },
+    { name: "Thanos", quote: "Inevitable... just like your failure.", tier: 4 },
+    { name: "Green Goblin", quote: "HEHEHE! You can't even keep a simple streak!", tier: 2 },
+    { name: "Doctor Doom", quote: "Doom laughs at your weakness! BWAHAHA!", tier: 4 },
+    { name: "Magneto", quote: "Pathetic! Even humans should do better than this.", tier: 3 },
+    { name: "Red Skull", quote: "Your lack of discipline amuses me! MUAHAHAHA!", tier: 3 },
+    { name: "Ultron", quote: "Human inconsistency... how predictable. *mechanical laugh*", tier: 3 },
+    { name: "Venom", quote: "We are... disappointed! HSSSS-HAHAHA!", tier: 2 },
+    { name: "Kingpin", quote: "In my business, consistency is everything. You've failed.", tier: 2 },
+    { name: "Mysterio", quote: "Is this an illusion, or are you really this bad? AHAHAHA!", tier: 1 },
+    { name: "Shocker", quote: "Shocked by your own incompetence? BZZT-HAHA!", tier: 1 },
+    { name: "Vulture", quote: "Your streak has crashed and burned! SCREEECH!", tier: 1 }
+];
 
 // Load data when popup opens
 document.addEventListener('DOMContentLoaded', async () => {
     await loadStreakData();
+    
+    // Check and apply penalties
+    checkAndApplyPenalties();
+    
     updateUI();
     
     // Check if we're still in cooldown
@@ -74,6 +96,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Add click event to streak button
     document.getElementById('streak-button').addEventListener('click', handleStreakClick);
+    
+    // Add toggle for achievements
+    document.querySelector('.achievements-header').addEventListener('click', () => {
+        document.getElementById('today-reasons').classList.toggle('show');
+    });
 });
 
 // Check if cooldown is still active when popup opens
@@ -103,10 +130,8 @@ function checkCooldownOnLoad() {
     // Disable button if max daily streaks reached
     if (streakData.todayStreaks >= 5) {
         const button = document.getElementById('streak-button');
-        const buttonText = button.querySelector('.button-text');
+        button.querySelector('.button-text').textContent = 'Max Daily Streaks';
         button.disabled = true;
-        button.style.opacity = '0.5';
-        buttonText.textContent = 'Max Daily Streaks';
     }
 }
 
@@ -144,6 +169,49 @@ function getCharacterByStreak(streakCount) {
     }
     
     return characterIndex;
+}
+
+// Calculate effective streak count (with penalties)
+function getEffectiveStreakCount() {
+    return Math.max(0, streakData.count - streakData.penaltyPoints);
+}
+
+// Check and apply penalties for missed streaks
+function checkAndApplyPenalties() {
+    if (!streakData.lastStreakTime || streakData.count === 0) {
+        return; // No penalties for new users or reset streaks
+    }
+    
+    const now = new Date().getTime();
+    const timeSinceLastStreak = now - streakData.lastStreakTime;
+    const hoursSinceLastStreak = timeSinceLastStreak / (1000 * 60 * 60);
+    
+    // Calculate how many 24-hour periods have passed
+    const missedPeriods = Math.floor(hoursSinceLastStreak / 24);
+    
+    // Calculate new penalties
+    const newPenalties = missedPeriods * 10;
+    
+    // Check if we need to apply new penalties
+    if (newPenalties > streakData.penaltyPoints) {
+        const penaltyDifference = newPenalties - streakData.penaltyPoints;
+        streakData.penaltyPoints = newPenalties;
+        
+        // Show villain laugh for the new penalty
+        if (penaltyDifference > 0) {
+            showVillainLaugh(missedPeriods);
+        }
+        
+        // Check if character needs to be downgraded
+        const effectiveCount = getEffectiveStreakCount();
+        const newCharacterIndex = getCharacterByStreak(effectiveCount);
+        if (newCharacterIndex < streakData.currentCharacterIndex) {
+            streakData.currentCharacterIndex = newCharacterIndex;
+        }
+        
+        // Save updated data
+        saveStreakData();
+    }
 }
 
 // Handle streak button click
@@ -212,6 +280,12 @@ async function handleStreakClick() {
     streakData.lastStreakTime = currentTime;
     streakData.dailyStreakTimes.push(currentTime);
     
+    // Reset penalties when streak is recorded
+    if (streakData.penaltyPoints > 0) {
+        showMessage(`Penalty cleared! +${streakData.penaltyPoints} points restored!`);
+        streakData.penaltyPoints = 0;
+    }
+    
     // Store reason with timestamp
     const streakEntry = {
         time: currentTime,
@@ -225,7 +299,8 @@ async function handleStreakClick() {
     reasonInput.value = '';
     
     // Check if we unlocked a new character
-    const newCharacterIndex = getCharacterByStreak(streakData.count);
+    const effectiveCount = getEffectiveStreakCount();
+    const newCharacterIndex = getCharacterByStreak(effectiveCount);
     if (newCharacterIndex > streakData.currentCharacterIndex) {
         streakData.currentCharacterIndex = newCharacterIndex;
         showLevelUpAnimation();
@@ -263,17 +338,15 @@ function startCooldownTimer(duration) {
     const updateTimer = () => {
         if (remaining <= 0) {
             clearInterval(cooldownInterval);
-            buttonText.textContent = originalText;
+            button.querySelector('.button-text').textContent = originalText;
             button.disabled = false;
-            button.style.opacity = '1';
             return;
         }
         
         const minutes = Math.floor(remaining / (1000 * 60));
         const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
-        buttonText.textContent = `Wait ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        button.querySelector('.button-text').textContent = `Wait ${minutes}:${seconds.toString().padStart(2, '0')}`;
         button.disabled = true;
-        button.style.opacity = '0.5';
         
         remaining -= 1000;
     };
@@ -284,13 +357,22 @@ function startCooldownTimer(duration) {
 
 // Get character image filename
 function getCharacterImageFilename(character) {
-    // Convert character name to filename format
-    let filename = character.name.toLowerCase();
-    if (character.fullName) {
-        filename = `${character.name} ${character.fullName}`.toLowerCase();
+    // Convert character name to icon filename format
+    let filename = character.name.toLowerCase()
+        .replace(/[()]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/\./g, '');
+    
+    // Special cases for character names
+    const nameMap = {
+        'the one above all': 'the-one-above-all'
+    };
+    
+    if (nameMap[filename]) {
+        filename = nameMap[filename];
     }
-    filename = filename.replace(/[()]/g, '').replace(/[\s-]/g, '_').replace(/\./g, '');
-    return `../images/marvel/${filename}.png`;
+    
+    return `../images/marvel/icons/${filename}.png`;
 }
 
 // Generate character image with initials (fallback)
@@ -333,8 +415,20 @@ function generateCharacterImage(character) {
 
 // Update the UI with current data
 function updateUI() {
-    // Update streak count
-    document.getElementById('streak-count').textContent = streakData.count;
+    // Calculate effective streak count
+    const effectiveCount = getEffectiveStreakCount();
+    
+    // Update streak count display
+    document.getElementById('streak-count').textContent = effectiveCount;
+    
+    // Show penalty indicator if any
+    const penaltyIndicator = document.getElementById('penalty-indicator');
+    if (streakData.penaltyPoints > 0) {
+        penaltyIndicator.textContent = `(-${streakData.penaltyPoints} penalty)`;
+        penaltyIndicator.style.display = 'block';
+    } else {
+        penaltyIndicator.style.display = 'none';
+    }
     
     // Update daily streak count
     const today = new Date().toDateString();
@@ -344,9 +438,9 @@ function updateUI() {
     }
     document.getElementById('daily-count').textContent = streakData.todayStreaks || 0;
     
-    // Get current character
-    const characterIndex = streakData.currentCharacterIndex || 0;
-    const character = marvelCharacters[characterIndex];
+    // Get current character based on effective count
+    const characterIndex = getCharacterByStreak(effectiveCount);
+    const character = marvelCharacters[characterIndex] || marvelCharacters[0];
     
     // Update character info
     document.getElementById('character-name').textContent = character.name;
@@ -362,42 +456,28 @@ function updateUI() {
     
     // Update progress to next character
     let progressPercent = 0;
-    let progressCurrent = 0;
-    let progressTotal = 0;
+    let progressLabel = document.getElementById('progress-label');
     
     if (characterIndex < marvelCharacters.length - 1) {
         const nextCharacter = marvelCharacters[characterIndex + 1];
         const currentPoints = character.points;
         const nextPoints = nextCharacter.points;
         
-        progressCurrent = streakData.count - currentPoints;
-        progressTotal = nextPoints - currentPoints;
+        const progressCurrent = effectiveCount - currentPoints;
+        const progressTotal = nextPoints - currentPoints;
         progressPercent = (progressCurrent / progressTotal) * 100;
         
-        document.getElementById('progress-current').textContent = Math.max(0, progressCurrent);
-        document.querySelector('.progress-text').innerHTML = 
-            `<span id="progress-current">${Math.max(0, progressCurrent)}</span> / ${progressTotal}`;
-        document.querySelector('.progress-label').textContent = 
-            `Progress to ${nextCharacter.name} (${nextPoints} days)`;
+        progressLabel.textContent = `${nextCharacter.name} in ${nextPoints - effectiveCount} days`;
     } else {
         // Max level reached
         progressPercent = 100;
-        document.querySelector('.progress-label').textContent = 'Maximum Power Achieved!';
-        document.querySelector('.progress-text').textContent = 'LEGENDARY';
+        progressLabel.textContent = 'Maximum Power Achieved! 🏆';
     }
     
     document.getElementById('progress-fill').style.width = Math.min(100, Math.max(0, progressPercent)) + '%';
     
-    // Update last streak info
-    if (streakData.lastDate) {
-        const lastDate = new Date(streakData.lastDate);
-        const formattedDate = lastDate.toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric', 
-            year: 'numeric' 
-        });
-        document.getElementById('last-streak').textContent = `Last streak: ${formattedDate}`;
-    }
+    // Show warning if close to penalty
+    showPenaltyWarning();
     
     // Show character description as tooltip
     characterImage.title = character.description;
@@ -432,7 +512,7 @@ function updateTodayReasons() {
             
             reasonItem.innerHTML = `
                 <span class="reason-time">${timeStr}</span>
-                ${entry.reason}
+                <div>${entry.reason}</div>
             `;
             
             reasonsList.appendChild(reasonItem);
@@ -445,18 +525,8 @@ function updateTodayReasons() {
 // Show a temporary message
 function showMessage(text) {
     const messageEl = document.createElement('div');
+    messageEl.className = 'temp-message';
     messageEl.textContent = text;
-    messageEl.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        z-index: 1000;
-    `;
     document.body.appendChild(messageEl);
     
     setTimeout(() => {
@@ -468,31 +538,82 @@ function showMessage(text) {
 function showLevelUpAnimation() {
     const character = marvelCharacters[streakData.currentCharacterIndex];
     const levelUpEl = document.createElement('div');
+    levelUpEl.className = 'level-up-notification';
     levelUpEl.innerHTML = `
-        <div style="font-size: 24px; margin-bottom: 10px;">⚡ NEW HERO UNLOCKED! ⚡</div>
-        <div style="font-size: 18px;">You've unlocked</div>
-        <div style="font-size: 20px; color: #ffd700; font-weight: bold;">${character.name}</div>
-        <div style="font-size: 14px; color: #ccc; margin-top: 10px; font-style: italic;">"${character.description}"</div>
-        <div style="font-size: 16px; margin-top: 10px;">Power Level: ${character.points}</div>
-    `;
-    levelUpEl.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        color: white;
-        padding: 30px;
-        border-radius: 15px;
-        text-align: center;
-        z-index: 1000;
-        border: 3px solid #ffd700;
-        box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
-        max-width: 300px;
+        <h3>⚡ NEW HERO UNLOCKED! ⚡</h3>
+        <div class="hero-name">${character.name}</div>
+        <div class="hero-description">"${character.description}"</div>
+        <div class="power-level">Power Level: ${character.points}</div>
     `;
     document.body.appendChild(levelUpEl);
     
     setTimeout(() => {
         levelUpEl.remove();
     }, 5000);
+}
+
+// Show villain laugh when penalty is applied
+function showVillainLaugh(missedPeriods) {
+    // Select villain based on missed periods
+    let villainTier = Math.min(4, Math.ceil(missedPeriods / 2));
+    const eligibleVillains = marvelVillains.filter(v => v.tier <= villainTier);
+    const villain = eligibleVillains[Math.floor(Math.random() * eligibleVillains.length)];
+    
+    // Create villain popup
+    const villainEl = document.createElement('div');
+    villainEl.className = 'villain-popup';
+    villainEl.innerHTML = `
+        <div class="villain-content">
+            <div class="villain-name">${villain.name}</div>
+            <div class="villain-quote">"${villain.quote}"</div>
+            <div class="penalty-info">-${missedPeriods * 10} POINTS!</div>
+        </div>
+    `;
+    document.body.appendChild(villainEl);
+    
+    // Add shake animation to the container
+    document.querySelector('.container').classList.add('shake');
+    
+    // Flash red border
+    document.body.classList.add('penalty-flash');
+    
+    // Remove effects after animation
+    setTimeout(() => {
+        villainEl.remove();
+        document.querySelector('.container').classList.remove('shake');
+        document.body.classList.remove('penalty-flash');
+    }, 4000);
+}
+
+// Show warning when approaching penalty deadline
+function showPenaltyWarning() {
+    if (!streakData.lastStreakTime || streakData.count === 0) {
+        return;
+    }
+    
+    const now = new Date().getTime();
+    const timeSinceLastStreak = now - streakData.lastStreakTime;
+    const hoursRemaining = 24 - (timeSinceLastStreak / (1000 * 60 * 60));
+    
+    // Remove existing warning
+    const existingWarning = document.querySelector('.warning-timer');
+    if (existingWarning) {
+        existingWarning.remove();
+    }
+    
+    // Show warning if less than 4 hours remaining
+    if (hoursRemaining > 0 && hoursRemaining < 4) {
+        const warningEl = document.createElement('div');
+        warningEl.className = 'warning-timer';
+        
+        if (hoursRemaining < 1) {
+            const minutesRemaining = Math.floor(hoursRemaining * 60);
+            warningEl.textContent = `⚠️ Penalty in ${minutesRemaining} minutes! Add a streak now!`;
+        } else {
+            const hours = Math.floor(hoursRemaining);
+            warningEl.textContent = `⚠️ Penalty in ${hours} hour${hours > 1 ? 's' : ''}! Don't break your streak!`;
+        }
+        
+        document.querySelector('.header').appendChild(warningEl);
+    }
 }
