@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marvel Streak Tracker</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Marvel Streak Tracker</h1>
+        
+        <div class="character-section">
+            <img id="character-image" class="character-image" src="" alt="Marvel Character">
+            <h2 id="character-name" class="character-name"></h2>
+            <div class="character-level">Level <span id="character-level">1</span></div>
+        </div>
+        
+        <div class="streak-section">
+            <div class="streak-number" id="streak-count">0</div>
+            <div class="streak-label">Total Streak</div>
+            <div class="daily-streaks">Today: <span id="daily-count">0</span>/5</div>
+        </div>
+        
+        <div class="streak-input-section">
+            <input type="text" id="streak-reason" class="streak-reason-input" 
+                   placeholder="What did you accomplish? (max 15 words)" 
+                   maxlength="150">
+        </div>
+        
+        <button id="streak-button" class="streak-button">
+            <span class="button-text">Add Streak</span>
+            <span class="button-icon">⚡</span>
+        </button>
+        
+        <div class="progress-section">
+            <div class="progress-label">Progress to Next Hero</div>
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <div class="progress-text"><span id="progress-current">0</span> / 5</div>
+        </div>
+        
+        <div class="last-streak" id="last-streak"></div>
+        
+        <div class="today-reasons" id="today-reasons">
+            <h3 class="reasons-title">Today's Accomplishments</h3>
+            <div class="reasons-list" id="reasons-list"></div>
+        </div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>

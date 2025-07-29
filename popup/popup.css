@@ -1,0 +1,242 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    width: 320px;
+    min-height: 480px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #ffffff;
+}
+
+.container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.title {
+    font-size: 24px;
+    text-align: center;
+    color: #e94560;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin-bottom: 10px;
+}
+
+.character-section {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    width: 100%;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.character-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid #ffd700;
+    margin-bottom: 10px;
+    object-fit: cover;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.character-name {
+    font-size: 20px;
+    color: #ffd700;
+    margin-bottom: 5px;
+}
+
+.character-level {
+    font-size: 14px;
+    color: #a8a8a8;
+}
+
+.streak-section {
+    text-align: center;
+    background: rgba(233, 69, 96, 0.2);
+    border-radius: 15px;
+    padding: 20px 40px;
+    border: 2px solid #e94560;
+}
+
+.streak-number {
+    font-size: 48px;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+}
+
+.streak-label {
+    font-size: 16px;
+    color: #ffffff;
+    margin-top: 5px;
+}
+
+.daily-streaks {
+    font-size: 14px;
+    color: #ffd700;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.streak-input-section {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.streak-reason-input {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 14px;
+    font-family: 'Arial', sans-serif;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.streak-reason-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.streak-reason-input:focus {
+    outline: none;
+    border-color: #ffd700;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.streak-button {
+    background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
+    border: none;
+    border-radius: 50px;
+    padding: 20px 50px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+}
+
+.streak-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6);
+}
+
+.streak-button:active {
+    transform: translateY(0);
+}
+
+.button-icon {
+    font-size: 24px;
+}
+
+.progress-section {
+    width: 100%;
+    text-align: center;
+}
+
+.progress-label {
+    font-size: 14px;
+    color: #a8a8a8;
+    margin-bottom: 10px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ffd700 0%, #ffed4e 100%);
+    width: 0%;
+    transition: width 0.5s ease;
+}
+
+.progress-text {
+    margin-top: 5px;
+    font-size: 14px;
+    color: #ffd700;
+}
+
+.last-streak {
+    font-size: 12px;
+    color: #a8a8a8;
+    text-align: center;
+}
+
+.today-reasons {
+    width: 100%;
+    margin-top: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 15px;
+    display: none;
+}
+
+.today-reasons.show {
+    display: block;
+}
+
+.reasons-title {
+    font-size: 16px;
+    color: #ffd700;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.reasons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.reason-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #ffffff;
+    border-left: 3px solid #ffd700;
+}
+
+.reason-time {
+    font-size: 11px;
+    color: #a8a8a8;
+    margin-right: 8px;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.streak-button.animate {
+    animation: pulse 0.5s ease;
+}

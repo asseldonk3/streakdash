@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Icon Generator</title>
+</head>
+<body>
+    <h1>Marvel Streak Tracker Icon Generator</h1>
+    <p>Right-click and save each icon to the images/icons folder with the appropriate name:</p>
+    
+    <h2>icon-16.png</h2>
+    <canvas id="icon16" width="16" height="16"></canvas>
+    
+    <h2>icon-32.png</h2>
+    <canvas id="icon32" width="32" height="32"></canvas>
+    
+    <h2>icon-48.png</h2>
+    <canvas id="icon48" width="48" height="48"></canvas>
+    
+    <h2>icon-128.png</h2>
+    <canvas id="icon128" width="128" height="128"></canvas>
+
+    <script>
+        function drawIcon(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#e94560');
+            gradient.addColorStop(1, '#ff6b6b');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Lightning bolt
+            ctx.fillStyle = '#ffd700';
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = size / 32;
+            
+            const scale = size / 128;
+            ctx.save();
+            ctx.scale(scale, scale);
+            
+            // Draw lightning bolt path
+            ctx.beginPath();
+            ctx.moveTo(70, 20);
+            ctx.lineTo(50, 55);
+            ctx.lineTo(65, 55);
+            ctx.lineTo(45, 108);
+            ctx.lineTo(70, 65);
+            ctx.lineTo(55, 65);
+            ctx.closePath();
+            
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+        }
+        
+        // Generate all icons
+        drawIcon('icon16', 16);
+        drawIcon('icon32', 32);
+        drawIcon('icon48', 48);
+        drawIcon('icon128', 128);
+    </script>
+</body>
+</html>

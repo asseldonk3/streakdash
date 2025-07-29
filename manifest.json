@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Marvel Streak Tracker",
+  "version": "0.0.0.1",
+  "description": "Track your daily streaks and unlock Marvel characters!",
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "images/icons/icon-16.png",
+      "32": "images/icons/icon-32.png",
+      "48": "images/icons/icon-48.png",
+      "128": "images/icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "images/icons/icon-16.png",
+    "32": "images/icons/icon-32.png",
+    "48": "images/icons/icon-48.png",
+    "128": "images/icons/icon-128.png"
+  },
+  "background": {
+    "service_worker": "background/background.js"
+  }
+}
