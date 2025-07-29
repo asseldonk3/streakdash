@@ -372,7 +372,7 @@ function getCharacterImageFilename(character) {
         filename = nameMap[filename];
     }
     
-    return `../images/marvel/icons/${filename}.png`;
+    return `/images/marvel/icons/${filename}.png`;
 }
 
 // Generate character image with initials (fallback)

@@ -4,7 +4,8 @@
   "version": "0.0.0.1",
   "description": "Track your daily streaks and unlock Marvel characters!",
   "permissions": [
-    "storage"
+    "storage",
+    "alarms"
   ],
   "action": {
     "default_popup": "popup/popup.html",
